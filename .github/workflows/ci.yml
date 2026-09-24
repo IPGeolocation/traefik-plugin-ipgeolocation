@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ['1.21', '1.22', '1.23']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: Check formatting
+        run: test -z "$(gofmt -l .)" || (gofmt -l -d . && exit 1)
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test -race -cover ./...
+
+      - name: No third-party dependencies
+        # Traefik requires plugin dependencies to be vendored, and Yaegi cannot
+        # run most MMDB libraries. The plugin must stay on the standard library.
+        run: |
+          if grep -q "^require" go.mod; then
+            echo "go.mod must not require third-party modules"
+            exit 1
+          fi
+
+      - name: Yaegi compatibility
+        # Traefik interprets plugins rather than compiling them, so code that
+        # builds can still fail to load. This runs the real interpreter.
+        run: make yaegi

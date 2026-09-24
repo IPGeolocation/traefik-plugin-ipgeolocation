@@ -1,0 +1,25 @@
+displayName: IPGeolocation.io
+type: middleware
+import: github.com/IPGeolocation/traefik-plugin-ipgeolocation
+basePkg: ipgeolocation
+
+summary: >-
+  Geolocation, ASN, company, abuse contact and VPN/proxy/Tor security data for every request,
+  read locally from IPGeolocation.io MMDB databases with no API calls and no per-request cost.
+  Enrich requests with headers, and geo-block or filter anonymous and malicious traffic at the edge.
+  A REST API mode is available for setups that cannot ship database files.
+
+# The catalog instantiates the plugin with this configuration, so it must work
+# without local files or network access. Production deployments should use
+# mode "mmdb" with local databases: see the README for full examples.
+testData:
+  mode: api
+  apiKey: YOUR_API_KEY
+  apiInclude: security
+  headerPreset: standard
+  trustForwardedHeader: false
+  allowPrivate: true
+  allowUnknown: true
+  failOpen: true
+  cacheTTL: 24h
+  logLevel: info

@@ -1,0 +1,89 @@
+# Dynamic configuration examples. Mount this file and point Traefik at it with
+# --providers.file.filename=/etc/traefik/dynamic.yml
+http:
+  middlewares:
+
+    # 1. Enrichment only: tell the backend where the visitor is.
+    geo-enrich:
+      plugin:
+        ipgeolocation:
+          databases:
+            - /etc/traefik/ipgeo/db-ip-location.mmdb
+            - /etc/traefik/ipgeo/db-ip-asn.mmdb
+          headerPreset: standard
+          refreshInterval: 1h
+          logLevel: info
+
+    # 2. Licensing or sanctions: serve two countries, refuse the rest.
+    us-and-canada-only:
+      plugin:
+        ipgeolocation:
+          databases:
+            - /etc/traefik/ipgeo/db-ip-location.mmdb
+          allowedCountries: [US, CA]
+          blockStatusCode: 451
+          blockMessage: This service is not available in your region.
+
+    # 3. Protect a login or checkout flow from anonymous and malicious traffic.
+    no-anonymizers:
+      plugin:
+        ipgeolocation:
+          databases:
+            - /etc/traefik/ipgeo/db-ip-security.mmdb
+          headerPreset: none
+          blockTor: true
+          blockVPN: true
+          blockProxy: true
+          blockResidentialProxy: true
+          blockKnownAttacker: true
+          blockThreatScoreAbove: 80
+          # Never lock out your own monitoring.
+          allowedIPs:
+            - 203.0.113.0/24
+
+    # 4. Tag infrastructure traffic instead of blocking it, so the backend can
+    #    rate limit harder or skip expensive rendering.
+    tag-infrastructure:
+      plugin:
+        ipgeolocation:
+          databases:
+            - /etc/traefik/ipgeo/db-ip-security.mmdb
+            - /etc/traefik/ipgeo/db-ip-asn.mmdb
+          headers:
+            X-Is-Cloud: is_cloud_provider
+            X-Cloud-Provider: cloud_provider
+            X-ASN-Type: asn_type
+          booleanFormat: one_zero
+
+    # 5. Behind Cloudflare or another proxy you control.
+    geo-behind-proxy:
+      plugin:
+        ipgeolocation:
+          databases:
+            - /etc/traefik/ipgeo/db-ip-location.mmdb
+          trustForwardedHeader: true
+          forwardedHeaderName: CF-Connecting-IP
+          headerPreset: minimal
+
+    # 6. Try a policy on live traffic without enforcing it yet.
+    policy-dry-run:
+      plugin:
+        ipgeolocation:
+          databases:
+            - /etc/traefik/ipgeo/db-ip-location.mmdb
+            - /etc/traefik/ipgeo/db-ip-security.mmdb
+          blockedCountries: [KP]
+          blockThreatScoreAbove: 70
+          dryRun: true
+          logLevel: info
+
+    # 7. No database files available: call the REST API instead.
+    geo-api:
+      plugin:
+        ipgeolocation:
+          mode: api
+          apiKey: YOUR_API_KEY
+          apiInclude: security
+          cacheTTL: 24h
+          headerPreset: standard
+          failOpen: true

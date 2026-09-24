@@ -1,0 +1,11 @@
+*.mmdb
+!examples/**/*.mmdb.md
+/tmp/
+.local-test/
+vendor/
+.idea/
+.vscode/
+*.test
+coverage.out
+update-databases.sh
+kubernetes.yml

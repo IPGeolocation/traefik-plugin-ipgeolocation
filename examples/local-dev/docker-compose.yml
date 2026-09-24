@@ -1,0 +1,32 @@
+# Local development with Docker.
+#
+#   mkdir -p ipgeo
+#   IPGEO_FIXTURE_OUT=$PWD/ipgeo go test -run TestWriteFixtureDatabase ../../...
+#   docker compose up
+#
+#   curl -H 'Host: whoami.localhost' -H 'X-Forwarded-For: 81.2.69.142' http://localhost:8000/
+#   curl -i -H 'Host: whoami.localhost' -H 'X-Forwarded-For: 2.56.188.34' http://localhost:8000/
+#
+# The repository is mounted as a local plugin, so edits apply after
+# `docker compose restart traefik`. See TESTING.md for the full guide.
+services:
+  traefik:
+    image: traefik:v3.3
+    ports:
+      - "8000:80"
+      - "8080:8080"
+    volumes:
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./ipgeo:/etc/traefik/ipgeo:ro
+      # The path must mirror the module name exactly.
+      - ../..:/plugins-local/src/github.com/IPGeolocation/traefik-plugin-ipgeolocation:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  whoami:
+    image: traefik/whoami
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
+      - "traefik.http.routers.whoami.middlewares=geo@file"

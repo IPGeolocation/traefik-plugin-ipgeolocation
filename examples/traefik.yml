@@ -1,0 +1,33 @@
+# Static configuration. The plugin is declared here; middlewares that use it
+# are declared in the dynamic configuration (see dynamic.yml).
+experimental:
+  plugins:
+    ipgeolocation:
+      moduleName: github.com/IPGeolocation/traefik-plugin-ipgeolocation
+      version: v1.0.0
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+providers:
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true
+
+# Enrichment headers flow straight into the access log.
+accessLog:
+  filePath: /var/log/traefik/access.log
+  format: json
+  fields:
+    headers:
+      names:
+        X-IPGeo-Country-Code: keep
+        X-IPGeo-City-Name: keep
+        X-IPGeo-ASN: keep
+        X-IPGeo-Threat-Score: keep
+
+log:
+  level: INFO

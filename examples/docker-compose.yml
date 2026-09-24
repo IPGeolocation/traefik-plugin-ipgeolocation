@@ -1,0 +1,37 @@
+# A complete, runnable example.
+#
+#   1. Put your IPGeolocation.io .mmdb files in ./ipgeo next to this file.
+#   2. docker compose up
+#   3. curl -H "Host: whoami.localhost" http://localhost/
+#
+# The whoami backend echoes the request headers, so you can see the
+# enrichment the middleware added.
+services:
+  traefik:
+    image: traefik:v3.3
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --entrypoints.web.address=:80
+      - --experimental.plugins.ipgeolocation.modulename=github.com/IPGeolocation/traefik-plugin-ipgeolocation
+      - --experimental.plugins.ipgeolocation.version=v1.0.0
+      - --log.level=INFO
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./dynamic.yml:/etc/traefik/dynamic.yml:ro
+      # The databases must be readable inside the container.
+      - ./ipgeo:/etc/traefik/ipgeo:ro
+
+  whoami:
+    image: traefik/whoami
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
+      - "traefik.http.routers.whoami.middlewares=geo-enrich@file"

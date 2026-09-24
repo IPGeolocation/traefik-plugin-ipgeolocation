@@ -1,0 +1,30 @@
+# Static configuration for local development.
+experimental:
+  localPlugins:
+    ipgeolocation:
+      moduleName: github.com/IPGeolocation/traefik-plugin-ipgeolocation
+
+api:
+  dashboard: true
+  insecure: true
+
+entryPoints:
+  web:
+    address: ":80"
+    # Without this, Traefik replaces X-Forwarded-For with the real peer
+    # address before any middleware runs, so the faked client address in your
+    # curl never reaches the plugin and every request looks like it came from
+    # the Docker bridge. Test instances only: in production list your real
+    # load balancers under trustedIPs instead.
+    forwardedHeaders:
+      insecure: true
+
+providers:
+  docker:
+    exposedByDefault: false
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true
+
+log:
+  level: INFO

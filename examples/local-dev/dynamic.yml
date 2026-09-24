@@ -1,0 +1,19 @@
+# Edit this file while the stack is running; Traefik reloads it immediately.
+http:
+  middlewares:
+    geo:
+      plugin:
+        ipgeolocation:
+          databases:
+            - /etc/traefik/ipgeo/db-ip-location.mmdb
+            - /etc/traefik/ipgeo/db-ip-security.mmdb
+            - /etc/traefik/ipgeo/db-ip-asn.mmdb
+          headerPreset: standard
+          # Needed because the test client address arrives in a header.
+          trustForwardedHeader: true
+          blockVPN: true
+          blockTor: true
+          blockedCountries: [KP]
+          # Turn this on to see every decision without blocking anything.
+          dryRun: false
+          logLevel: debug
