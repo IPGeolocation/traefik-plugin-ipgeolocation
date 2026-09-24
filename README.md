@@ -139,7 +139,7 @@ labels:
 
 On Kubernetes, the same keys go under `spec.plugin.ipgeolocation` in a Traefik `Middleware` resource.
 
-[!TIP]
+[!NOTE]
 > Start with `dryRun: true` and `logLevel: info`. The plugin evaluates every rule, logs what it would have blocked, tags the request with `X-IPGeo-Dry-Run`, and lets it through. Watch the log for a day, then remove `dryRun`. This is the safest way to introduce [any blocking rule](#access-control).
 
 ## Getting the databases
