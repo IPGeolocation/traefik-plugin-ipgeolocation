@@ -139,7 +139,7 @@ labels:
 
 On Kubernetes, the same keys go under `spec.plugin.ipgeolocation` in a Traefik `Middleware` resource.
 
-[!NOTE]
+> [!TIP]
 > Start with `dryRun: true` and `logLevel: info`. The plugin evaluates every rule, logs what it would have blocked, tags the request with `X-IPGeo-Dry-Run`, and lets it through. Watch the log for a day, then remove `dryRun`. This is the safest way to introduce [any blocking rule](#access-control).
 
 ## Getting the databases
@@ -158,7 +158,7 @@ Download the `.mmdb` files from your [IPGeolocation.io account](https://app.ipge
 
 Load only what you need. Fields from a database you did not load stay empty, so referencing them is safe. Bundles that ship two databases in one archive work the same way: list both files. Tiers are on the [pricing page](https://ipgeolocation.io/db-pricing.html), the [field schemas](https://ipgeolocation.io/documentation/databases.html) show what each database contains.
 
-[!TIP]
+> [!TIP]
 > You can evaluate the plugin before buying anything. IPGeolocation.io publishes sample databases that need no API key, so you can try them out. Each is a real MMDB file with a subset of ranges, so you can work through the whole [Quick start](#quick-start) with one. To read a file directly, use [mmdbio](https://github.com/IPGeolocation/mmdbio).
 
 ## Configuration reference
@@ -318,7 +318,7 @@ trustForwardedHeader: true
 forwardedHeaderName: CF-Connecting-IP
 ```
 
-[!IMPORTANT]
+> [!IMPORTANT]
 > X-Forwarded-For` is written by clients and can be forged. With `trustForwardedHeader: true` and neither `forwardedDepth` nor `trustedProxies` set, a visitor can pick their own country by sending one header. Trust it only when a proxy you operate overwrites it, and pair it with one of the two strategies above. Traefik also replaces the header with the peer address before any middleware runs, unless the entrypoint's `forwardedHeaders.trustedIPs` lists that peer, so both settings are needed.
 
 When testing locally, a plugin that loads cleanly but enriches nothing is almost always this. Set `logLevel: debug` and look for `127.0.0.1 is private or loopback, skipping the lookup`.
@@ -337,7 +337,7 @@ When a file's size or modification time changes, the plugin opens the new file, 
 
 The download side is yours to run, from cron, a systemd timer, a Kubernetes CronJob or your existing pipeline. Each database has its own static link with its own `apiKey` parameter, and each archive holds the `.mmdb`, a `README.md` and a `checksum.txt`. A good refresh job verifies the checksum, confirms the file really is an MMDB before installing it, and handles bundles holding two databases.
 
-[!IMPORTANT]
+> [!IMPORTANT]
 > Save each download under a temporary name in the same directory and then rename it into place. Rename is atomic on one filesystem, so the plugin sees either the whole old file or the whole new one, while a file overwritten in place can be picked up half written. Note also that with `refreshInterval` left at `0`, new files only take effect when Traefik restarts.
 
 ## Performance and memory
