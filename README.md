@@ -239,8 +239,7 @@ Use any of these names in the [`headers`](#enrichment) map. They match the [Ngin
 | Country metadata | `currency_code`, `currency_name`, `currency_symbol`, `calling_code`, `languages`, `tld` |
 | Company | `company_name`, `company_domain`, `company_type`, `isp_name`, `organization_name` |
 | ASN | `asn`, `asn_number`, `asn_name`, `asn_organization`, `asn_country`, `asn_domain`, `asn_type`, `asn_rir`, `asn_date_allocated`, `asn_allocation_status`, `asn_routes`, `asn_peers`, `asn_upstreams`, `asn_downstreams` |
-| Security | `threat_score`, `is_tor`, `is_proxy`, `is_vpn`, `is_relay`, `is_residential_proxy`, `is_anonymous`, `is_known_attacker`, `is_bot`, `is_spam`, `is_cloud_provider`, `cloud_provider`, `proxy_type`, `proxy_provider`, `vpn_provider`, `relay_provider`, `proxy_confidence`, `vpn_confidence`, `proxy_last_seen`, `vpn_last_seen` |
-| Security v4 | `is_known_good_bot`, `bot_type`, `bot_operator`, `bot_confidence`, `bot_last_seen`, `is_corporate_gateway`, `corporate_gateway_provider`, `corporate_gateway_type` |
+| Security | `threat_score`, `is_tor`, `is_proxy`, `is_vpn`, `is_relay`, `is_residential_proxy`, `is_anonymous`, `is_known_attacker`, `is_bot`, `is_spam`, `is_cloud_provider`, `cloud_provider`, `proxy_type`, `proxy_provider`, `vpn_provider`, `relay_provider`, `proxy_confidence`, `vpn_confidence`, `proxy_last_seen`, `vpn_last_seen`, `is_known_good_bot`, `bot_type`, `bot_operator`, `bot_confidence`, `bot_last_seen`, `is_corporate_gateway`, `corporate_gateway_provider`, `corporate_gateway_type` |
 | Residential proxy and hosting | `residential_proxy_provider`, `residential_proxy_last_seen`, `hosting_provider` |
 | Abuse contact | `abuse_name`, `abuse_email`, `abuse_phone`, `abuse_address`, `abuse_country_code`, `abuse_kind`, `abuse_route` |
 | Special | `ip`, the client address the plugin used |
