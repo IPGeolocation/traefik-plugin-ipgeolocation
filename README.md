@@ -4,7 +4,7 @@ Geo-blocking, VPN and proxy detection, and IP intelligence headers for Traefik, 
 
 Use it to block traffic by country, stop Tor exit nodes, VPNs, proxies and known attackers at the edge, route visitors by region, and add country, city, ASN and threat data to requests and access logs.
 
-```yaml
+```bash
 # Block Tor and known attackers, refuse high risk addresses, tell the backend where visitors are
 http:
   middlewares:
@@ -56,7 +56,7 @@ No Go toolchain is needed. Traefik downloads and interprets the plugin.
 
 ### Declare the plugin in the static configuration
 
-```yaml
+```bash
 # traefik.yml
 experimental:
   plugins:
@@ -159,7 +159,7 @@ Download the `.mmdb` files from your [IPGeolocation.io account](https://app.ipge
 Load only what you need. Fields from a database you did not load stay empty, so referencing them is safe. Bundles that ship two databases in one archive work the same way: list both files. Tiers are on the [pricing page](https://ipgeolocation.io/db-pricing.html), the [field schemas](https://ipgeolocation.io/documentation/databases.html) show what each database contains.
 
 [!TIP]
-> You can evaluate the plugin before buying anything. IPGeolocation.io publishes sample databases that need no API key, for example `https://database.ipgeolocation.io/v2/download/geo-std/ip-country-sample?format=mmdb`. Each is a real MMDB file with a subset of ranges, so you can work through the whole [Quick start](#quick-start) with one. To read a file directly, use [mmdbio](https://github.com/IPGeolocation/mmdbio).
+> You can evaluate the plugin before buying anything. IPGeolocation.io publishes sample databases that need no API key, so you can try them out. Each is a real MMDB file with a subset of ranges, so you can work through the whole [Quick start](#quick-start) with one. To read a file directly, use [mmdbio](https://github.com/IPGeolocation/mmdbio).
 
 ## Configuration reference
 
