@@ -79,7 +79,7 @@ Define a middleware in your dynamic configuration and reference it from a router
 
 ### Add geolocation headers for your backend
 
-```yaml
+```bash
 http:
   routers:
     my-app:
@@ -103,7 +103,7 @@ Your backend receives `X-IPGeo-Country-Code: US`, `X-IPGeo-City-Name: Philadelph
 
 Middleware definitions below go under `http.middlewares`, as in the example above.
 
-```yaml
+```bash
 us-and-canada-only:
   plugin:
     ipgeolocation:
@@ -115,7 +115,7 @@ us-and-canada-only:
 
 ### Stop VPNs, proxies and attackers in front of a login page
 
-```yaml
+```bash
 login-shield:
   plugin:
     ipgeolocation:
@@ -130,7 +130,7 @@ Put your monitoring and office ranges in [`allowedIPs`](#access-control). They b
 
 ### Docker labels
 
-```yaml
+```bash
 labels:
   - "traefik.http.middlewares.geo.plugin.ipgeolocation.databases[0]=/etc/traefik/ipgeo/db-ip-location.mmdb"
   - "traefik.http.middlewares.geo.plugin.ipgeolocation.blockedCountries[0]=KP"
@@ -255,7 +255,7 @@ The Residential Proxy and Hosting databases have no boolean column, since a reco
 
 Map the [fields](#field-reference) you need to your own header names, then read them in the application:
 
-```yaml
+```bash
 headers:
   X-Geo-Country: country_code
   X-Geo-Currency: currency_code
@@ -266,7 +266,7 @@ headers:
 
 Attach a lighter middleware to the whole site and a stricter one to sensitive routes:
 
-```yaml
+```bash
 http:
   routers:
     checkout:
@@ -288,7 +288,7 @@ http:
 
 ### Separate humans from infrastructure
 
-```yaml
+```bash
 headers:
   X-Is-Cloud: is_cloud_provider
   X-ASN-Type: asn_type
@@ -305,7 +305,7 @@ Traefik logs any request header you name under `accessLog.fields.headers.names`,
 
 The plugin geolocates one address per request. By default that is the address of the TCP connection, which is correct when Traefik faces the internet directly. Behind a load balancer or CDN, every visitor would look like the balancer, so you need the forwarded header:
 
-```yaml
+```bash
 # Behind exactly one proxy you control
 trustForwardedHeader: true
 forwardedDepth: 1
@@ -330,7 +330,7 @@ Private, loopback, link local and carrier grade NAT ranges are absent from every
 
 IPGeolocation.io publishes fresh releases daily. The plugin never downloads anything itself. It watches the files you gave it, and a scheduled job replaces them:
 
-```yaml
+```bash
 refreshInterval: 1h
 ```
 
@@ -362,7 +362,7 @@ Leave the cache on. Real traffic repeats addresses constantly, and a cached requ
 
 When you cannot ship database files, the plugin can call the [IPGeolocation.io REST API](https://ipgeolocation.io/ip-location-api.html) instead:
 
-```yaml
+```bash
 http:
   middlewares:
     geo:
