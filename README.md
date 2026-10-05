@@ -5,7 +5,7 @@ Geo-blocking, VPN and proxy detection, and IP intelligence headers for Traefik, 
 Use it to block traffic by country, stop Tor exit nodes, VPNs, proxies and known attackers at the edge, route visitors by region, and add country, city, ASN and threat data to requests and access logs.
 
 ```bash
-# Block Tor and known attackers, refuse high risk addresses, tell the backend where visitors are
+# Block Tor and known attackers, refuse high-risk addresses, tell the backend where visitors are
 http:
   middlewares:
     geo:
@@ -31,7 +31,7 @@ Most Traefik geolocation setups call a remote API on every request or put a GeoI
 - One middleware, many databases. Location, Security, Company, ASN, Abuse Contact, Hosting and Residential Proxy all load through one list, and the plugin [layers them](#how-it-works).
 - Works with every database tier. Security v1, v3 and v4 all resolve without configuration changes.
 - Zero dependencies. The MMDB reader is written using only the Go standard library, so it runs inside [Traefik's plugin interpreter](#development).
-- Safe by default. [Forwarded headers](#client-ip-selection) are ignored unless you trust them, private addresses skip the lookup, failures fail open, and client supplied `X-IPGeo-*` headers are stripped.
+- Safe by default. [Forwarded headers](#client-ip-selection) are ignored unless you trust them, private addresses skip the lookup, failures fail open, and client-supplied `X-IPGeo-*` headers are stripped.
 
 ## How it works
 
@@ -65,7 +65,7 @@ experimental:
       version: v1.0.0
 ```
 
-The command line equivalents are `--experimental.plugins.ipgeolocation.modulename=...` and `--experimental.plugins.ipgeolocation.version=v1.0.0`. The [Traefik plugin documentation](https://doc.traefik.io/traefik/plugins/) covers how plugins are loaded at startup.
+The command-line equivalents are `--experimental.plugins.ipgeolocation.modulename=...` and `--experimental.plugins.ipgeolocation.version=v1.0.0`. The [Traefik plugin documentation](https://doc.traefik.io/traefik/plugins/) covers how plugins are loaded at startup.
 
 ### Mount the databases
 
@@ -323,7 +323,7 @@ forwardedHeaderName: CF-Connecting-IP
 
 When testing locally, a plugin that loads cleanly but enriches nothing is almost always this. Set `logLevel: debug` and look for `127.0.0.1 is private or loopback, skipping the lookup`.
 
-Private, loopback, link local and carrier grade NAT ranges are absent from every public database. With [`allowPrivate: true`](#access-control) they skip the lookup and pass through untouched.
+Private, loopback, link-local, and carrier-grade NAT ranges are absent from every public database. With [`allowPrivate: true`](#access-control) they skip the lookup and pass through untouched.
 
 ## Keeping databases up to date
 
@@ -342,7 +342,7 @@ The download side is yours to run, from cron, a systemd timer, a Kubernetes Cron
 
 ## Performance and memory
 
-Measured with `go test -bench` on a 2.8 GHz Xeon, one request end to end through the middleware:
+Measured with `go test -bench` on a 2.8 GHz Xeon, one request end-to-end through the middleware:
 
 | Case | Per request | Allocations |
 | --- | --- | --- |
@@ -406,10 +406,10 @@ Every cache miss is an outbound HTTPS request that costs a credit and adds a rou
 <details> <summary><strong>Does it work behind Cloudflare, an AWS load balancer or another proxy?</strong></summary> Yes, but two settings are needed. Set `trustForwardedHeader: true` on the middleware with either `forwardedDepth` or `trustedProxies`, and list your proxy under the Traefik entrypoint's `forwardedHeaders.trustedIPs`. Without the second, Traefik overwrites the header before any middleware runs and every visitor looks like your load balancer. Behind Cloudflare, set `forwardedHeaderName: CF-Connecting-IP`. See [Client IP selection](#client-ip-selection).
 </details>
 
-<details> <summary><strong>How much latency does it add?</strong></summary> Around 3.8 µs for a repeat visitor served from cache, and 9.4 µs to 44.6 µs for a cache miss depending on how many fields you resolve. Cost scales with the number of headers and rules you use, not with the size of the database, so a minimal preset stays fast even with multi gigabyte files. The numbers and the benchmark setup are in [Performance and memory](#performance-and-memory).
+<details> <summary><strong>How much latency does it add?</strong></summary> Around 3.8 µs for a repeat visitor served from cache, and 9.4 µs to 44.6 µs for a cache miss depending on how many fields you resolve. Cost scales with the number of headers and rules you use, not with the size of the database, so a minimal preset stays fast even with multi-gigabyte files. The numbers and the benchmark setup are in [Performance and memory](#performance-and-memory).
 </details>
 
-<details> <summary><strong>How do I update the databases without restarting Traefik?</strong></summary> Set `refreshInterval: 1h` and have a scheduled job replace the files. The plugin notices the change, swaps the database in atomically, clears its cache and keeps serving the old copy if the new file will not open. Your job must write the download under a temporary name in the same directory and then rename it into place, otherwise a half written file can be picked up. See [Keeping databases up to date](#keeping-databases-up-to-date).
+<details> <summary><strong>How do I update the databases without restarting Traefik?</strong></summary> Set `refreshInterval: 1h` and have a scheduled job replace the files. The plugin notices the change, swaps the database in atomically, clears its cache and keeps serving the old copy if the new file will not open. Your job must write the download under a temporary name in the same directory and then rename it into place, otherwise a half-written file can be picked up. See [Keeping databases up to date](#keeping-databases-up-to-date).
 </details>
 
 <details> <summary><strong>Does it support IPv6?</strong></summary> Yes. IPGeolocation.io databases cover both address families, and the plugin looks up whichever address the visitor connected with. Every rule and header works the same for IPv6, including the [forwarded header strategies](#client-ip-selection), which accept bracketed addresses such as `[2a04:4540::1]:443`.
@@ -422,20 +422,20 @@ Every cache miss is an outbound HTTPS request that costs a credit and adds a rou
 ```bash
 make test       # unit tests, including MMDB fixtures built byte by byte
 make yaegi      # load the plugin through Yaegi, the interpreter Traefik uses
-make try        # end to end inside a real Traefik binary
+make try        # end-to-end inside a real Traefik binary
 make check      # all of the above
 ```
 
 Traefik does not compile plugins. It interprets them with [Yaegi](https://github.com/traefik/yaegi), which supports a subset of Go, so code that passes `go test` can still fail to load. Run `make yaegi` before every release. The reader is also checked against the official MMDB Go reader on real databases.
 
-Two Yaegi rules for contributors, documented where they apply in the code: never assign a concrete type to an interface variable in a multi value assignment from a call, and never convert a value to an interface inside a loop body (return it from a function instead, see `newMMDBRecord` in `provider.go`). Neither fails under `go test`. Third party dependencies are not allowed.
+Two Yaegi rules for contributors, documented where they apply in the code: never assign a concrete type to an interface variable in a multi-value assignment from a call, and never convert a value to an interface inside a loop body (return it from a function instead; see `newMMDBRecord` in `provider.go`). Neither fails under `go test`. Third-party dependencies are not allowed.
 
 ## Related tools and links
 
 **IPGeolocation.io tools**
 
 - [Nginx module](https://github.com/IPGeolocation/ngx_http_ipgeolocation_module), the same databases as native `$ip_*` variables ([docs](https://ipgeolocation.io/documentation/nginx-integration))
-- [mmdbio](https://github.com/IPGeolocation/mmdbio), a command line tool for reading and inspecting MMDB files
+- [mmdbio](https://github.com/IPGeolocation/mmdbio), a command-line tool for reading and inspecting MMDB files
 - [IPGeolocation CLI](https://github.com/IPGeolocation/cli), IP intelligence from your terminal and shell scripts
 - [n8n community node](https://github.com/IPGeolocation/n8n-nodes-ipgeolocation), IP lookups inside n8n workflows
 - [Integration guides](https://github.com/IPGeolocation/ipgeolocation-guides), setup guides for every integration
