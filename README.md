@@ -375,7 +375,7 @@ http:
           failOpen: true
 ```
 
-Every cache miss is an outbound HTTPS request that costs a credit and adds a round trip, so keep `cacheTTL` high and `failOpen` on, and prefer MMDB mode for production traffic. [Field names](#field-reference) and [rules](#access-control) are identical in both modes, so switching later is a configuration change.
+Each cache miss makes a billable API request. A base lookup costs 1 credit; the security example above costs 3 credits per valid IP., so keep `cacheTTL` high and `failOpen` on, and prefer MMDB mode for production traffic. [Field names](#field-reference) and [rules](#access-control) are identical in both modes, so switching later is a configuration change.
 
 ## Troubleshooting
 
