@@ -436,7 +436,7 @@ Two Yaegi rules for contributors, documented where they apply in the code: never
 
 - [Nginx module](https://github.com/IPGeolocation/ngx_http_ipgeolocation_module), the same databases as native `$ip_*` variables ([docs](https://ipgeolocation.io/documentation/nginx-integration))
 - [mmdbio](https://github.com/IPGeolocation/mmdbio), a command-line tool for reading and inspecting MMDB files
-- [IPGeolocation CLI](https://github.com/IPGeolocation/cli), IP intelligence from your terminal and shell scripts
+- [IPGeolocation.io CLI](https://github.com/IPGeolocation/cli), IP intelligence from your terminal and shell scripts
 - [n8n community node](https://github.com/IPGeolocation/n8n-nodes-ipgeolocation), IP lookups inside n8n workflows
 - [Integration guides](https://github.com/IPGeolocation/ipgeolocation-guides), setup guides for every integration
 - [All repositories](https://github.com/IPGeolocation)
