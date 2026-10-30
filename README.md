@@ -222,7 +222,7 @@ Header names follow `X-IPGeo-<Field-Name>`, so `country_code` becomes `X-IPGeo-C
 | --- | --- | --- |
 | `trustForwardedHeader` | `false` | Read the client address from a forwarded header, see [Client IP selection](#client-ip-selection) |
 | `forwardedHeaderName` | `X-Forwarded-For` | For example `CF-Connecting-IP` behind Cloudflare |
-| `forwardedDepth` | `0` | Take the Nth address counting from the right. `0` means leftmost |
+| `forwardedDepth` | `0` | Take the Nth address counting from the right. With `0`, use `trustedProxies` when set; otherwise use the leftmost address. |
 | `trustedProxies` | | Proxy CIDRs allowed to supply forwarded headers. Other senders use the connection address. With `forwardedDepth: 0`, these CIDRs are also skipped while reading the header from right to left. |
 | `cacheSize` | `10000` | Cached addresses. `0` disables the cache |
 | `cacheTTL` | `1h` | Lifetime of a cached lookup. Use `24h` in [API mode](#api-mode) |

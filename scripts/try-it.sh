@@ -177,7 +177,7 @@ cleanup() {
 	kill "$TRAEFIK_PID" "$BACKEND_PID" 2>/dev/null
 	wait 2>/dev/null
 }
-[ "$KEEP" -eq 1 ] || trap cleanup EXIT
+trap cleanup EXIT
 
 ready=0
 for _ in $(seq 1 30); do
@@ -243,7 +243,8 @@ else
 	red "$failures check(s) failed. Traefik log: $WORK/traefik.log"
 fi
 
-if [ "$KEEP" -eq 1 ]; then
+if [ "$KEEP" -eq 1 ] && [ "$failures" -eq 0 ]; then
+	trap - EXIT
 	echo
 	info "Traefik is still running on http://127.0.0.1:$PORT (pid $TRAEFIK_PID)"
 	echo "  curl -H 'X-Forwarded-For: 81.2.69.142' http://127.0.0.1:$PORT/"

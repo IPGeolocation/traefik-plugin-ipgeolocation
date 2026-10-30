@@ -101,7 +101,7 @@ private and loopback addresses by design, so nothing appears to happen. Faking t
 # Static configuration: let Traefik itself keep the header you send.
 entryPoints:
   web:
-    address: ":8000"
+    address: "127.0.0.1:8000"
     forwardedHeaders:
       insecure: true      # test instances only
 
@@ -155,7 +155,4 @@ same version, clear that cache or Traefik keeps serving the old copy.
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` runs formatting, `go vet`, the race-enabled tests, the Yaegi check, and a
-guard that fails the build if anything ever adds a third-party dependency to `go.mod`. Traefik
-requires plugin dependencies to be vendored, and the standard MMDB readers cannot run under Yaegi,
-so staying on the standard library is a hard constraint rather than a preference.
+`.github/workflows/ci.yml` runs formatting, `go vet`, race-enabled tests, the Yaegi check, a vulnerability scan, and a guard against third-party dependencies in the root `go.mod`. It tests with Go 1.26.10 and 1.27.3, runs the binary test script with Traefik v3.7.17, and checks both Docker Compose examples with Traefik v3.7.16.
