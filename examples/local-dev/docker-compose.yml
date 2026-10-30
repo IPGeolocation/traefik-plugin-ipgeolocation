@@ -1,7 +1,7 @@
 # Local development with Docker.
 #
 #   mkdir -p ipgeo
-#   IPGEO_FIXTURE_OUT=$PWD/ipgeo go test -run TestWriteFixtureDatabase ../../...
+#   IPGEO_FIXTURE_OUT=$PWD/ipgeo go test -count=1 -run TestWriteFixtureDatabase ../../...
 #   docker compose up
 #
 #   curl -H 'Host: whoami.localhost' -H 'X-Forwarded-For: 81.2.69.142' http://localhost:8000/
@@ -11,10 +11,10 @@
 # `docker compose restart traefik`. See TESTING.md for the full guide.
 services:
   traefik:
-    image: traefik:v3.3
+    image: traefik:v3.7.16
     ports:
-      - "8000:80"
-      - "8080:8080"
+      - "127.0.0.1:8000:80"
+      - "127.0.0.1:8080:8080"
     volumes:
       - ./traefik.yml:/etc/traefik/traefik.yml:ro
       - ./dynamic.yml:/etc/traefik/dynamic.yml:ro

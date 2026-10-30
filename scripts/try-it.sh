@@ -12,7 +12,7 @@
 
 set -u
 
-TRAEFIK_VERSION="${TRAEFIK_VERSION:-v3.3.4}"
+TRAEFIK_VERSION="${TRAEFIK_VERSION:-v3.7.17}"
 PORT="${PORT:-8000}"
 BACKEND_PORT="${BACKEND_PORT:-9000}"
 KEEP=0
@@ -46,7 +46,7 @@ info "Building sample databases"
 # These are tiny MMDB files written by the test suite, in the real binary
 # format, holding a handful of networks. Replace them with your own
 # IPGeolocation.io downloads whenever you like.
-(cd "$ROOT" && IPGEO_FIXTURE_OUT="$WORK/ipgeo" go test -run TestWriteFixtureDatabase ./... >/dev/null) || {
+(cd "$ROOT" && IPGEO_FIXTURE_OUT="$WORK/ipgeo" go test -count=1 -run TestWriteFixtureDatabase ./... >/dev/null) || {
 	red "could not build the sample databases"
 	exit 1
 }
@@ -65,7 +65,7 @@ mkdir -p "$WORK/plugins-local/src/$MODULE"
 # ---------------------------------------------------------------------------
 info "Fetching Traefik $TRAEFIK_VERSION"
 # ---------------------------------------------------------------------------
-if [ ! -x "$WORK/traefik" ]; then
+if [ ! -x "$WORK/traefik" ] || [ "$("$WORK/traefik" version 2>/dev/null | awk '/^Version:/ {print $2}')" != "${TRAEFIK_VERSION#v}" ]; then
 	case "$(uname -s)" in
 	Linux) os=linux ;;
 	Darwin) os=darwin ;;
@@ -103,7 +103,7 @@ experimental:
 
 entryPoints:
   web:
-    address: ":$PORT"
+    address: "127.0.0.1:$PORT"
     # Traefik overwrites X-Forwarded-For with the real peer address before
     # any middleware runs, unless the peer is trusted. Without this, the
     # faked header below never reaches the plugin and every request looks
@@ -170,14 +170,14 @@ info "Starting the backend and Traefik"
 # ---------------------------------------------------------------------------
 python3 "$WORK/echo.py" >/dev/null 2>&1 &
 BACKEND_PID=$!
-(cd "$WORK" && ./traefik --configfile="$WORK/traefik.yml" >"$WORK/traefik.log" 2>&1) &
+(cd "$WORK" && exec ./traefik --configfile="$WORK/traefik.yml" >"$WORK/traefik.log" 2>&1) &
 TRAEFIK_PID=$!
 
 cleanup() {
 	kill "$TRAEFIK_PID" "$BACKEND_PID" 2>/dev/null
 	wait 2>/dev/null
 }
-[ "$KEEP" -eq 1 ] || trap cleanup EXIT
+trap cleanup EXIT
 
 ready=0
 for _ in $(seq 1 30); do
@@ -243,7 +243,8 @@ else
 	red "$failures check(s) failed. Traefik log: $WORK/traefik.log"
 fi
 
-if [ "$KEEP" -eq 1 ]; then
+if [ "$KEEP" -eq 1 ] && [ "$failures" -eq 0 ]; then
+	trap - EXIT
 	echo
 	info "Traefik is still running on http://127.0.0.1:$PORT (pid $TRAEFIK_PID)"
 	echo "  curl -H 'X-Forwarded-For: 81.2.69.142' http://127.0.0.1:$PORT/"

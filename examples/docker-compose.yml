@@ -8,7 +8,7 @@
 # enrichment the middleware added.
 services:
   traefik:
-    image: traefik:v3.3
+    image: traefik:v3.7.16
     command:
       - --api.dashboard=true
       - --api.insecure=true
@@ -21,7 +21,7 @@ services:
       - --log.level=INFO
     ports:
       - "80:80"
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./dynamic.yml:/etc/traefik/dynamic.yml:ro

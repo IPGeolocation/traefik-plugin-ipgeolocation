@@ -318,7 +318,34 @@ func newAPIProvider(endpoint, apiKey, include, fields string, timeout time.Durat
 	}, nil
 }
 
-func (p *apiProvider) lookup(ctx context.Context, ip net.IP, fields []fieldDef) (map[string]string, bool, error) {
+type apiError struct {
+	err     error
+	message string
+}
+
+func (e *apiError) Error() string { return e.message }
+func (e *apiError) Unwrap() error { return e.err }
+
+func (p *apiProvider) redact(message string) string {
+	if p.apiKey == "" {
+		return message
+	}
+	return strings.NewReplacer(
+		p.apiKey, "[redacted]",
+		url.QueryEscape(p.apiKey), "[redacted]",
+		url.PathEscape(p.apiKey), "[redacted]",
+	).Replace(message)
+}
+
+func (p *apiProvider) lookup(ctx context.Context, ip net.IP, fields []fieldDef) (values map[string]string, found bool, err error) {
+	defer func() {
+		if err != nil {
+			if message := p.redact(err.Error()); message != err.Error() {
+				err = &apiError{err: err, message: message}
+			}
+		}
+	}()
+
 	query := url.Values{}
 	query.Set("apiKey", p.apiKey)
 	query.Set("ip", ip.String())
@@ -358,7 +385,7 @@ func (p *apiProvider) lookup(ctx context.Context, ip net.IP, fields []fieldDef) 
 		return map[string]string{}, false, nil
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, false, fmt.Errorf("API returned HTTP %d: %s", resp.StatusCode, firstLine(string(body)))
+		return nil, false, fmt.Errorf("API returned HTTP %d: %s", resp.StatusCode, firstLine(p.redact(string(body))))
 	}
 
 	var decoded map[string]interface{}

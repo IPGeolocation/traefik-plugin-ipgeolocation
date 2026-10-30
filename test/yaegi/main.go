@@ -15,6 +15,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -163,12 +164,15 @@ func (c *checker) build(configure func(reflect.Value)) http.Handler {
 	return handler
 }
 
-func (c *checker) serve(handler http.Handler, remoteAddr string) *httptest.ResponseRecorder {
+func (c *checker) serve(handler http.Handler, remoteAddr string, forwarded ...string) *httptest.ResponseRecorder {
 	c.backendHit = false
 	c.headers = nil
 
 	req := httptest.NewRequest(http.MethodGet, "http://example.com/", nil)
 	req.RemoteAddr = remoteAddr
+	if len(forwarded) > 0 {
+		req.Header.Set("X-Forwarded-For", forwarded[0])
+	}
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 	return rec
@@ -265,6 +269,28 @@ func (c *checker) run(fixturesDir string) {
 	}
 	pass("country, VPN and private address rules run interpreted")
 
+	for _, depth := range []int{0, 1} {
+		proxy := c.build(func(cfg reflect.Value) {
+			cfg.FieldByName("Databases").Set(reflect.ValueOf([]string{location, security}))
+			cfg.FieldByName("TrustForwardedHeader").SetBool(true)
+			cfg.FieldByName("TrustedProxies").Set(reflect.ValueOf([]string{"10.0.0.0/8"}))
+			cfg.FieldByName("ForwardedDepth").SetInt(int64(depth))
+			cfg.FieldByName("AllowedIPs").Set(reflect.ValueOf([]string{"8.8.8.8/32"}))
+			cfg.FieldByName("BlockVPN").SetBool(true)
+			setString(cfg, "HeaderPreset", "standard")
+			setString(cfg, "LogLevel", "error")
+		})
+		for _, supplied := range []string{"127.0.0.1", "8.8.8.8"} {
+			if rec := c.serve(proxy, "2.56.188.34:1234", supplied); rec.Code != http.StatusForbidden || c.backendHit {
+				fail("untrusted forwarded header", fmt.Errorf("depth %d, status %d, backend reached %v", depth, rec.Code, c.backendHit))
+			}
+		}
+		if rec := c.serve(proxy, "10.0.0.1:1234", "81.2.69.142"); rec.Code != http.StatusOK || c.headers.Get("X-Ipgeo-Country-Code") != "GB" {
+			fail("trusted forwarded header", fmt.Errorf("depth %d, status %d, country %q", depth, rec.Code, c.headers.Get("X-Ipgeo-Country-Code")))
+		}
+	}
+	pass("trusted peers supply headers and untrusted peers cannot bypass rules")
+
 	// API mode.
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) {
 		rw.Header().Set("Content-Type", "application/json")
@@ -284,6 +310,50 @@ func (c *checker) run(fixturesDir string) {
 		fail("API mode", fmt.Errorf("status %d, country %q", rec.Code, c.headers.Get("X-Ipgeo-Country-Code")))
 	}
 	pass("API mode, JSON parsing and flag derivation run interpreted")
+
+	output, err := os.CreateTemp("", "yaegi-api-errors-")
+	if err != nil {
+		fail("capture API logs", err)
+	}
+	defer func() { _ = output.Close(); _ = os.Remove(output.Name()) }()
+	stdout := c.interp.Symbols("os")["os"]["Stdout"]
+	original := reflect.ValueOf(stdout.Interface())
+	stdout.Set(reflect.ValueOf(output))
+	defer stdout.Set(original)
+	const key = "yaegi-key+with spaces/?&"
+	errorsAPI := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) {
+		rw.WriteHeader(http.StatusInternalServerError)
+		_, _ = rw.Write([]byte(key + " " + url.QueryEscape(key)))
+	}))
+	closedEndpoint := errorsAPI.URL
+	for _, endpoint := range []string{errorsAPI.URL, closedEndpoint} {
+		for _, failOpen := range []bool{false, true} {
+			failedAPI := c.build(func(cfg reflect.Value) {
+				setString(cfg, "Mode", "api")
+				setString(cfg, "APIKey", key)
+				setString(cfg, "APIEndpoint", endpoint)
+				setString(cfg, "LogLevel", "error")
+				cfg.FieldByName("FailOpen").SetBool(failOpen)
+			})
+			rec := c.serve(failedAPI, "81.2.69.142:1234")
+			want := http.StatusForbidden
+			if failOpen {
+				want = http.StatusOK
+			}
+			if rec.Code != want || c.backendHit != failOpen {
+				fail("API failure policy", fmt.Errorf("status %d, backend reached %v", rec.Code, c.backendHit))
+			}
+		}
+		errorsAPI.Close()
+	}
+	logged, err := os.ReadFile(output.Name())
+	if err != nil {
+		fail("read API logs", err)
+	}
+	if !strings.Contains(string(logged), "lookup of") || strings.Contains(string(logged), key) || strings.Contains(string(logged), url.QueryEscape(key)) {
+		fail("redact API errors", fmt.Errorf("expected lookup errors without credentials"))
+	}
+	pass("API errors redact credentials and retain fail-open and fail-closed behavior")
 }
 
 func pass(message string) { fmt.Println("PASS  " + message) }

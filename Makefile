@@ -2,7 +2,7 @@
 
 FIXTURES ?= /tmp/ipgeo-fixtures
 
-check: fmt vet test yaegi ## Everything CI runs
+check: fmt vet test yaegi ## Formatting, vet, unit tests and Yaegi checks
 
 test: ## Unit tests, including MMDB fixtures built byte by byte
 	go test -race -cover ./...
@@ -19,7 +19,7 @@ lint: ## Requires golangci-lint
 
 fixtures: ## Write small sample databases to $(FIXTURES)
 	@mkdir -p $(FIXTURES)
-	IPGEO_FIXTURE_OUT=$(FIXTURES) go test -run TestWriteFixtureDatabase ./... > /dev/null
+	IPGEO_FIXTURE_OUT=$(FIXTURES) go test -count=1 -run TestWriteFixtureDatabase ./... > /dev/null
 	@echo "sample databases written to $(FIXTURES)"
 
 yaegi: fixtures ## Load the plugin through Yaegi, the interpreter Traefik uses
