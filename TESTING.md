@@ -21,7 +21,7 @@ genuine MMDB files, in the real binary format, holding a few networks:
 
 ```bash
 mkdir -p /tmp/ipgeo
-IPGEO_FIXTURE_OUT=/tmp/ipgeo go test -run TestWriteFixtureDatabase ./...
+IPGEO_FIXTURE_OUT=/tmp/ipgeo go test -count=1 -run TestWriteFixtureDatabase ./...
 ```
 
 | Address | Present in | Resolves to |
@@ -122,7 +122,7 @@ operate.
 
 ```bash
 cd examples/local-dev
-mkdir -p ipgeo && IPGEO_FIXTURE_OUT=$PWD/ipgeo go test -run TestWriteFixtureDatabase ../../...
+mkdir -p ipgeo && IPGEO_FIXTURE_OUT=$PWD/ipgeo go test -count=1 -run TestWriteFixtureDatabase ../../...
 docker compose up
 ```
 

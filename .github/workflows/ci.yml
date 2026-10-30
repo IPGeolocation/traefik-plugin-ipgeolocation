@@ -59,7 +59,7 @@ jobs:
         working-directory: examples/local-dev
         run: |
           mkdir -p ipgeo
-          IPGEO_FIXTURE_OUT=$PWD/ipgeo go test -run TestWriteFixtureDatabase ../../...
+          IPGEO_FIXTURE_OUT=$PWD/ipgeo go test -count=1 -run TestWriteFixtureDatabase ../../...
           trap 'docker compose logs; docker compose down --volumes' EXIT
           docker compose up -d --wait
           for attempt in $(seq 1 30); do
@@ -84,7 +84,7 @@ jobs:
         working-directory: examples
         run: |
           mkdir -p ipgeo
-          IPGEO_FIXTURE_OUT=$PWD/ipgeo go test -run TestWriteFixtureDatabase ../...
+          IPGEO_FIXTURE_OUT=$PWD/ipgeo go test -count=1 -run TestWriteFixtureDatabase ../...
           trap 'docker compose logs; docker compose down --volumes' EXIT
           docker compose up -d --wait
           for attempt in $(seq 1 30); do

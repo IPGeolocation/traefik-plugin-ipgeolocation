@@ -46,7 +46,7 @@ info "Building sample databases"
 # These are tiny MMDB files written by the test suite, in the real binary
 # format, holding a handful of networks. Replace them with your own
 # IPGeolocation.io downloads whenever you like.
-(cd "$ROOT" && IPGEO_FIXTURE_OUT="$WORK/ipgeo" go test -run TestWriteFixtureDatabase ./... >/dev/null) || {
+(cd "$ROOT" && IPGEO_FIXTURE_OUT="$WORK/ipgeo" go test -count=1 -run TestWriteFixtureDatabase ./... >/dev/null) || {
 	red "could not build the sample databases"
 	exit 1
 }
