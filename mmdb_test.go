@@ -312,7 +312,7 @@ func timeLater() time.Time {
 }
 
 // TestWriteFixtureDatabase is a development helper: set IPGEO_FIXTURE_OUT to a
-// directory and run `go test -run TestWriteFixtureDatabase` to write small
+// directory and run `go test -count=1 -run TestWriteFixtureDatabase` to write small
 // sample databases you can point the plugin at while evaluating it.
 func TestWriteFixtureDatabase(t *testing.T) {
 	dir := os.Getenv("IPGEO_FIXTURE_OUT")

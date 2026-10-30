@@ -423,7 +423,7 @@ Each cache miss makes a billable API request. A base lookup costs 1 credit; the 
 make test       # unit tests, including MMDB fixtures built byte by byte
 make yaegi      # load the plugin through Yaegi, the interpreter Traefik uses
 make try        # end-to-end inside a real Traefik binary
-make check      # all of the above
+make check      # formatting, vet, unit tests and Yaegi checks
 ```
 
 Traefik does not compile plugins. It interprets them with [Yaegi](https://github.com/traefik/yaegi), which supports a subset of Go, so code that passes `go test` can still fail to load. Run `make yaegi` before every release. The reader is also checked against the official MMDB Go reader on real databases.
