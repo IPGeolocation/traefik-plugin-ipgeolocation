@@ -6,16 +6,19 @@ on:
     tags: ['v*']
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['1.21', '1.22', '1.23']
+        go: ['1.26.10', '1.27.3']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
         with:
           go-version: ${{ matrix.go }}
 
@@ -41,3 +44,54 @@ jobs:
         # Traefik interprets plugins rather than compiling them, so code that
         # builds can still fail to load. This runs the real interpreter.
         run: make yaegi
+
+      - name: Vulnerability check
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@v1.9.0
+          govulncheck ./...
+
+      - name: Traefik integration
+        if: matrix.go == '1.27.3'
+        run: ./scripts/try-it.sh
+
+      - name: Docker Compose integration
+        if: matrix.go == '1.27.3'
+        working-directory: examples/local-dev
+        run: |
+          mkdir -p ipgeo
+          IPGEO_FIXTURE_OUT=$PWD/ipgeo go test -run TestWriteFixtureDatabase ../../...
+          trap 'docker compose logs; docker compose down --volumes' EXIT
+          docker compose up -d --wait
+          for attempt in $(seq 1 30); do
+            if curl -fsS -H 'Host: whoami.localhost' -H 'X-Forwarded-For: 81.2.69.142' http://localhost:8000/ > /tmp/ipgeo-whoami; then
+              break
+            fi
+            sleep 1
+          done
+          grep -qi 'X-Ipgeo-Country-Code: GB' /tmp/ipgeo-whoami
+          test "$(curl -sS -o /dev/null -w '%{http_code}' -H 'Host: whoami.localhost' -H 'X-Forwarded-For: 2.56.188.34' http://localhost:8000/)" = 403
+          docker compose restart traefik
+          for attempt in $(seq 1 30); do
+            if curl -fsS -H 'Host: whoami.localhost' -H 'X-Forwarded-For: 81.2.69.142' http://localhost:8000/ > /tmp/ipgeo-whoami; then
+              break
+            fi
+            sleep 1
+          done
+          grep -qi 'X-Ipgeo-Country-Code: GB' /tmp/ipgeo-whoami
+
+      - name: Published Compose example
+        if: matrix.go == '1.27.3'
+        working-directory: examples
+        run: |
+          mkdir -p ipgeo
+          IPGEO_FIXTURE_OUT=$PWD/ipgeo go test -run TestWriteFixtureDatabase ../...
+          trap 'docker compose logs; docker compose down --volumes' EXIT
+          docker compose up -d --wait
+          for attempt in $(seq 1 30); do
+            if curl -fsS -H 'Host: whoami.localhost' http://localhost/ > /tmp/ipgeo-published-whoami; then
+              break
+            fi
+            sleep 1
+          done
+          grep -q 'Hostname:' /tmp/ipgeo-published-whoami
+          docker compose logs traefik | grep -q 'Plugins loaded'

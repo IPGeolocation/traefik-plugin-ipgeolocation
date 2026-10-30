@@ -27,6 +27,9 @@ func (r ipResolver) clientIP(req *http.Request) net.IP {
 	if !r.trustForwarded {
 		return peer
 	}
+	if len(r.trustedProxies) > 0 && !ipInNets(peer, r.trustedProxies) {
+		return peer
+	}
 
 	values := forwardedValues(req, r.headerName)
 	if len(values) == 0 {

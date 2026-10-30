@@ -11,10 +11,10 @@
 # `docker compose restart traefik`. See TESTING.md for the full guide.
 services:
   traefik:
-    image: traefik:v3.3
+    image: traefik:v3.7.16
     ports:
-      - "8000:80"
-      - "8080:8080"
+      - "127.0.0.1:8000:80"
+      - "127.0.0.1:8080:8080"
     volumes:
       - ./traefik.yml:/etc/traefik/traefik.yml:ro
       - ./dynamic.yml:/etc/traefik/dynamic.yml:ro

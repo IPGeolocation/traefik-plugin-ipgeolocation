@@ -2,7 +2,7 @@
 
 FIXTURES ?= /tmp/ipgeo-fixtures
 
-check: fmt vet test yaegi ## Everything CI runs
+check: fmt vet test yaegi ## Formatting, vet, unit tests and Yaegi checks
 
 test: ## Unit tests, including MMDB fixtures built byte by byte
 	go test -race -cover ./...

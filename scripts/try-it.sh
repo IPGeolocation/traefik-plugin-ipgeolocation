@@ -12,7 +12,7 @@
 
 set -u
 
-TRAEFIK_VERSION="${TRAEFIK_VERSION:-v3.3.4}"
+TRAEFIK_VERSION="${TRAEFIK_VERSION:-v3.7.17}"
 PORT="${PORT:-8000}"
 BACKEND_PORT="${BACKEND_PORT:-9000}"
 KEEP=0
@@ -65,7 +65,7 @@ mkdir -p "$WORK/plugins-local/src/$MODULE"
 # ---------------------------------------------------------------------------
 info "Fetching Traefik $TRAEFIK_VERSION"
 # ---------------------------------------------------------------------------
-if [ ! -x "$WORK/traefik" ]; then
+if [ ! -x "$WORK/traefik" ] || [ "$("$WORK/traefik" version 2>/dev/null | awk '/^Version:/ {print $2}')" != "${TRAEFIK_VERSION#v}" ]; then
 	case "$(uname -s)" in
 	Linux) os=linux ;;
 	Darwin) os=darwin ;;
@@ -103,7 +103,7 @@ experimental:
 
 entryPoints:
   web:
-    address: ":$PORT"
+    address: "127.0.0.1:$PORT"
     # Traefik overwrites X-Forwarded-For with the real peer address before
     # any middleware runs, unless the peer is trusted. Without this, the
     # faked header below never reaches the plugin and every request looks
@@ -170,7 +170,7 @@ info "Starting the backend and Traefik"
 # ---------------------------------------------------------------------------
 python3 "$WORK/echo.py" >/dev/null 2>&1 &
 BACKEND_PID=$!
-(cd "$WORK" && ./traefik --configfile="$WORK/traefik.yml" >"$WORK/traefik.log" 2>&1) &
+(cd "$WORK" && exec ./traefik --configfile="$WORK/traefik.yml" >"$WORK/traefik.log" 2>&1) &
 TRAEFIK_PID=$!
 
 cleanup() {

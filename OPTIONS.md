@@ -391,9 +391,11 @@ Set it to the number of proxies you actually run. This is the reliable choice wh
 
 ### `trustedProxies`
 
-Default empty. CIDRs of your own proxies. Used only when `trustForwardedHeader: true` and `forwardedDepth: 0`.
+Default empty. CIDRs of proxies allowed to supply forwarded headers. Used when `trustForwardedHeader: true`.
 
-The plugin reads the header from the right and takes the first address that is not one of yours. Use this when the number of hops varies.
+When this list is set, the connection’s sender must match one of these CIDRs; otherwise the plugin uses the connection address. This check also applies when `forwardedDepth` is set.
+
+With `forwardedDepth: 0`, the plugin reads the header from the right and takes the first address outside these CIDRs. Use this when the number of hops varies.
 
 ## Cache
 

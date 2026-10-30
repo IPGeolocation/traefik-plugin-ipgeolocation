@@ -46,7 +46,7 @@ Because the first match wins, databases layer: load a Location and a Security da
 
 ## Requirements
 
-- Traefik v3.x (tested against v3.3). Traefik v2.x is not supported.
+- Traefik v3.x (tested against v3.7.17). Traefik v2.x is not supported.
 - One or more IPGeolocation.io [`.mmdb` databases](#getting-the-databases), or an API key for [API mode](#api-mode).
 - Read access to the database files from inside the Traefik process or container.
 
@@ -223,7 +223,7 @@ Header names follow `X-IPGeo-<Field-Name>`, so `country_code` becomes `X-IPGeo-C
 | `trustForwardedHeader` | `false` | Read the client address from a forwarded header, see [Client IP selection](#client-ip-selection) |
 | `forwardedHeaderName` | `X-Forwarded-For` | For example `CF-Connecting-IP` behind Cloudflare |
 | `forwardedDepth` | `0` | Take the Nth address counting from the right. `0` means leftmost |
-| `trustedProxies` | | Your proxy CIDRs. The first address from the right that is not yours is used |
+| `trustedProxies` | | Proxy CIDRs allowed to supply forwarded headers. Other senders use the connection address. With `forwardedDepth: 0`, these CIDRs are also skipped while reading the header from right to left. |
 | `cacheSize` | `10000` | Cached addresses. `0` disables the cache |
 | `cacheTTL` | `1h` | Lifetime of a cached lookup. Use `24h` in [API mode](#api-mode) |
 | `apiKey`, `apiEndpoint`, `apiInclude`, `apiFields`, `apiTimeout` | | [API mode](#api-mode) settings |
