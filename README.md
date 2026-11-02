@@ -62,10 +62,10 @@ experimental:
   plugins:
     ipgeolocation:
       moduleName: github.com/IPGeolocation/traefik-plugin-ipgeolocation
-      version: v1.0.0
+      version: v1.0.1
 ```
 
-The command-line equivalents are `--experimental.plugins.ipgeolocation.modulename=...` and `--experimental.plugins.ipgeolocation.version=v1.0.0`. The [Traefik plugin documentation](https://doc.traefik.io/traefik/plugins/) covers how plugins are loaded at startup.
+The command-line equivalents are `--experimental.plugins.ipgeolocation.modulename=...` and `--experimental.plugins.ipgeolocation.version=v1.0.1`. The [Traefik plugin documentation](https://doc.traefik.io/traefik/plugins/) covers how plugins are loaded at startup.
 
 ### Mount the databases
 
@@ -319,7 +319,7 @@ forwardedHeaderName: CF-Connecting-IP
 ```
 
 > [!IMPORTANT]
-> X-Forwarded-For is written by clients and can be forged. With trustForwardedHeader: true and neither forwardedDepth nor trustedProxies set, a visitor can pick their own country by sending one header. Trust it only when a proxy you operate overwrites it, and pair it with one of the two strategies above. Traefik also replaces the header with the peer address before any middleware runs, unless the entrypoint's forwardedHeaders.trustedIPs lists that peer, so both settings are needed.
+> `X-Forwarded-For` is written by clients and can be forged. With `trustForwardedHeader: true` and neither `forwardedDepth` nor `trustedProxies` set, a visitor can pick their own country by sending one header. Trust it only when a proxy you operate overwrites it, and pair it with one of the two strategies above. Traefik also replaces the header with the peer address before any middleware runs, unless the entrypoint's `forwardedHeaders.trustedIPs` lists that peer, so both settings are needed.
 
 When testing locally, a plugin that loads cleanly but enriches nothing is almost always this. Set `logLevel: debug` and look for `127.0.0.1 is private or loopback, skipping the lookup`.
 
