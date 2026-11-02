@@ -147,7 +147,7 @@ experimental:
   plugins:
     ipgeolocation:
       moduleName: github.com/IPGeolocation/traefik-plugin-ipgeolocation
-      version: v1.0.0
+      version: v1.0.1
 ```
 
 Traefik downloads it at startup and caches it under its plugin storage directory. If you re-tag the

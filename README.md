@@ -4,7 +4,7 @@ Geo-blocking, VPN and proxy detection, and IP intelligence headers for Traefik, 
 
 Use it to block traffic by country, stop Tor exit nodes, VPNs, proxies and known attackers at the edge, route visitors by region, and add country, city, ASN and threat data to requests and access logs.
 
-```bash
+```yaml
 # Block Tor and known attackers, refuse high-risk addresses, tell the backend where visitors are
 http:
   middlewares:
@@ -56,16 +56,16 @@ No Go toolchain is needed. Traefik downloads and interprets the plugin.
 
 ### Declare the plugin in the static configuration
 
-```bash
+```yaml
 # traefik.yml
 experimental:
   plugins:
     ipgeolocation:
       moduleName: github.com/IPGeolocation/traefik-plugin-ipgeolocation
-      version: v1.0.0
+      version: v1.0.1
 ```
 
-The command-line equivalents are `--experimental.plugins.ipgeolocation.modulename=...` and `--experimental.plugins.ipgeolocation.version=v1.0.0`. The [Traefik plugin documentation](https://doc.traefik.io/traefik/plugins/) covers how plugins are loaded at startup.
+The command-line equivalents are `--experimental.plugins.ipgeolocation.modulename=...` and `--experimental.plugins.ipgeolocation.version=v1.0.1`. The [Traefik plugin documentation](https://doc.traefik.io/traefik/plugins/) covers how plugins are loaded at startup.
 
 ### Mount the databases
 
@@ -79,7 +79,7 @@ Define a middleware in your dynamic configuration and reference it from a router
 
 ### Add geolocation headers for your backend
 
-```bash
+```yaml
 http:
   routers:
     my-app:
@@ -103,7 +103,7 @@ Your backend receives `X-IPGeo-Country-Code: US`, `X-IPGeo-City-Name: Philadelph
 
 Middleware definitions below go under `http.middlewares`, as in the example above.
 
-```bash
+```yaml
 us-and-canada-only:
   plugin:
     ipgeolocation:
@@ -115,7 +115,7 @@ us-and-canada-only:
 
 ### Stop VPNs, proxies and attackers in front of a login page
 
-```bash
+```yaml
 login-shield:
   plugin:
     ipgeolocation:
@@ -130,7 +130,7 @@ Put your monitoring and office ranges in [`allowedIPs`](#access-control). They b
 
 ### Docker labels
 
-```bash
+```yaml
 labels:
   - "traefik.http.middlewares.geo.plugin.ipgeolocation.databases[0]=/etc/traefik/ipgeo/db-ip-location.mmdb"
   - "traefik.http.middlewares.geo.plugin.ipgeolocation.blockedCountries[0]=KP"
@@ -254,7 +254,7 @@ The Residential Proxy and Hosting databases have no boolean column, since a reco
 
 Map the [fields](#field-reference) you need to your own header names, then read them in the application:
 
-```bash
+```yaml
 headers:
   X-Geo-Country: country_code
   X-Geo-Currency: currency_code
@@ -265,7 +265,7 @@ headers:
 
 Attach a lighter middleware to the whole site and a stricter one to sensitive routes:
 
-```bash
+```yaml
 http:
   routers:
     checkout:
@@ -287,7 +287,7 @@ http:
 
 ### Separate humans from infrastructure
 
-```bash
+```yaml
 headers:
   X-Is-Cloud: is_cloud_provider
   X-ASN-Type: asn_type
@@ -304,7 +304,7 @@ Traefik logs any request header you name under `accessLog.fields.headers.names`,
 
 The plugin geolocates one address per request. By default that is the address of the TCP connection, which is correct when Traefik faces the internet directly. Behind a load balancer or CDN, every visitor would look like the balancer, so you need the forwarded header:
 
-```bash
+```yaml
 # Behind exactly one proxy you control
 trustForwardedHeader: true
 forwardedDepth: 1
@@ -319,7 +319,7 @@ forwardedHeaderName: CF-Connecting-IP
 ```
 
 > [!IMPORTANT]
-> X-Forwarded-For is written by clients and can be forged. With trustForwardedHeader: true and neither forwardedDepth nor trustedProxies set, a visitor can pick their own country by sending one header. Trust it only when a proxy you operate overwrites it, and pair it with one of the two strategies above. Traefik also replaces the header with the peer address before any middleware runs, unless the entrypoint's forwardedHeaders.trustedIPs lists that peer, so both settings are needed.
+> `X-Forwarded-For` is written by clients and can be forged. With `trustForwardedHeader: true` and neither `forwardedDepth` nor `trustedProxies` set, a visitor can pick their own country by sending one header. Trust it only when a proxy you operate overwrites it, and pair it with one of the two strategies above. Traefik also replaces the header with the peer address before any middleware runs, unless the entrypoint's `forwardedHeaders.trustedIPs` lists that peer, so both settings are needed.
 
 When testing locally, a plugin that loads cleanly but enriches nothing is almost always this. Set `logLevel: debug` and look for `127.0.0.1 is private or loopback, skipping the lookup`.
 
@@ -329,7 +329,7 @@ Private, loopback, link-local, and carrier-grade NAT ranges are absent from ever
 
 IPGeolocation.io publishes fresh releases daily. The plugin never downloads anything itself. It watches the files you gave it, and a scheduled job replaces them:
 
-```bash
+```yaml
 refreshInterval: 1h
 ```
 
@@ -361,7 +361,7 @@ Leave the cache on. Real traffic repeats addresses constantly, and a cached requ
 
 When you cannot ship database files, the plugin can call the [IPGeolocation.io REST API](https://ipgeolocation.io/ip-location-api.html) instead:
 
-```bash
+```yaml
 http:
   middlewares:
     geo:

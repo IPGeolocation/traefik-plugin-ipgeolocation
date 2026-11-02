@@ -17,7 +17,7 @@ services:
       - --providers.file.filename=/etc/traefik/dynamic.yml
       - --entrypoints.web.address=:80
       - --experimental.plugins.ipgeolocation.modulename=github.com/IPGeolocation/traefik-plugin-ipgeolocation
-      - --experimental.plugins.ipgeolocation.version=v1.0.0
+      - --experimental.plugins.ipgeolocation.version=v1.0.1
       - --log.level=INFO
     ports:
       - "80:80"
