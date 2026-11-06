@@ -151,7 +151,7 @@ Download the `.mmdb` files from your [IPGeolocation.io account](https://app.ipge
 | [IP Geolocation](https://ipgeolocation.io/ip-geolocation-database.html) | `db-ip-location.mmdb` | country, state, district, city, postal code, coordinates, time zone, currency |
 | [IP Security](https://ipgeolocation.io/ip-security-database.html) | `db-ip-security.mmdb` | threat score, Tor, VPN, proxy, relay, bot, spam, attacker and cloud flags |
 | [IP Company](https://ipgeolocation.io/ip-company-database.html) | `db-ip-company.mmdb` | company or ISP name, domain and type |
-| [IP to ASN](https://ipgeolocation.io/ip-asn-database.html) | `db-ip-asn.mmdb` | AS number, organization, type, RIR, peers and routes in the Deep tier |
+| [IP to ASN](https://ipgeolocation.io/ip-asn-database.html) | `db-ip-asn.mmdb` | AS number, organization, type and RIR; peers and routes in IP to ASN (Extended) |
 | [IP Abuse Contact](https://ipgeolocation.io/ip-abuse-contact-database.html) | `db-ip-abuse.mmdb` | abuse email, phone, address, route, country |
 | [Residential Proxy](https://ipgeolocation.io/residential-proxy-database.html) | `db-residential-proxy.mmdb` | residential proxy provider and last seen date |
 | [IP Hosting](https://ipgeolocation.io/ip-hosting-database.html) | `db-ip-hosting.mmdb` | hosting provider name |
