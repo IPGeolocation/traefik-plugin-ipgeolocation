@@ -155,4 +155,4 @@ same version, clear that cache or Traefik keeps serving the old copy.
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` runs formatting, `go vet`, race-enabled tests, the Yaegi check, a vulnerability scan, and a guard against third-party dependencies in the root `go.mod`. It tests with Go 1.26.10 and 1.27.3, runs the binary test script with Traefik v3.7.17, and checks both Docker Compose examples with Traefik v3.7.16.
+`.github/workflows/ci.yml` runs formatting, `go vet`, race-enabled tests, the Yaegi check, a vulnerability scan, and a guard against third-party dependencies in the root `go.mod`. It tests with Go 1.26.11 and 1.27.4, runs the binary test script with Traefik v3.7.17, and checks both Docker Compose examples with Traefik v3.7.16.

@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['1.26.10', '1.27.3']
+        go: ['1.26.11', '1.27.4']
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
 
@@ -51,11 +51,11 @@ jobs:
           govulncheck ./...
 
       - name: Traefik integration
-        if: matrix.go == '1.27.3'
+        if: matrix.go == '1.27.4'
         run: ./scripts/try-it.sh
 
       - name: Docker Compose integration
-        if: matrix.go == '1.27.3'
+        if: matrix.go == '1.27.4'
         working-directory: examples/local-dev
         run: |
           mkdir -p ipgeo
@@ -80,7 +80,7 @@ jobs:
           grep -qi 'X-Ipgeo-Country-Code: GB' /tmp/ipgeo-whoami
 
       - name: Published Compose example
-        if: matrix.go == '1.27.3'
+        if: matrix.go == '1.27.4'
         working-directory: examples
         run: |
           mkdir -p ipgeo
