@@ -62,10 +62,10 @@ experimental:
   plugins:
     ipgeolocation:
       moduleName: github.com/IPGeolocation/traefik-plugin-ipgeolocation
-      version: v1.0.1
+      version: v1.1.0
 ```
 
-The command-line equivalents are `--experimental.plugins.ipgeolocation.modulename=...` and `--experimental.plugins.ipgeolocation.version=v1.0.1`. The [Traefik plugin documentation](https://doc.traefik.io/traefik/plugins/) covers how plugins are loaded at startup.
+The command-line equivalents are `--experimental.plugins.ipgeolocation.modulename=...` and `--experimental.plugins.ipgeolocation.version=v1.1.0`. The [Traefik plugin documentation](https://doc.traefik.io/traefik/plugins/) covers how plugins are loaded at startup.
 
 ### Mount the databases
 
