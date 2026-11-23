@@ -17,6 +17,18 @@ func residentialProxyRecord() map[string]interface{} {
 	}
 }
 
+// residentialProxyV2Record mirrors db-residential-proxy.mmdb v2: the
+// providers are an array, and three proxy activity counts ship as uint16.
+func residentialProxyV2Record() map[string]interface{} {
+	return map[string]interface{}{
+		"proxy_providers":          []interface{}{"Proxy-Seller", "ProxyWing"},
+		"last_seen":                "2026-11-20",
+		"proxy_days_seen_7d":       uint16Value(3),
+		"proxy_days_seen_30d":      uint16Value(12),
+		"proxy_provider_count_30d": uint16Value(2),
+	}
+}
+
 // hostingRecord mirrors db-ip-hosting.mmdb.
 func hostingRecord() map[string]interface{} {
 	return map[string]interface{}{
@@ -79,6 +91,43 @@ func TestBlockResidentialProxyWithOnlyThatDatabase(t *testing.T) {
 	}
 	if rec, _ := serve(t, cfg, "8.8.8.8:1234", nil); rec.Code != http.StatusOK {
 		t.Errorf("address outside the database: got %d, want 200", rec.Code)
+	}
+}
+
+func TestResidentialProxyV2Database(t *testing.T) {
+	dir := t.TempDir()
+	path := writeFixture(t, dir, "db-residential-proxy.mmdb",
+		buildMMDB(t, 28, 6, "IPGeolocation-ResidentialProxy", []dbEntry{
+			{network: "81.2.69.0/24", data: residentialProxyV2Record()},
+		}))
+
+	cfg := CreateConfig()
+	cfg.Databases = []string{path}
+	cfg.HeaderPreset = presetFull
+	cfg.LogLevel = "error"
+
+	_, seen := serve(t, cfg, "81.2.69.142:1234", nil)
+	if seen == nil {
+		t.Fatal("the request never reached the backend")
+	}
+	want := map[string]string{
+		"X-IPGeo-Is-Residential-Proxy":        "true",
+		"X-IPGeo-Residential-Proxy-Provider":  "Proxy-Seller,ProxyWing",
+		"X-IPGeo-Proxy-Provider":              "Proxy-Seller,ProxyWing",
+		"X-IPGeo-Residential-Proxy-Last-Seen": "2026-11-20",
+		"X-IPGeo-Proxy-Days-Seen-7d":          "3",
+		"X-IPGeo-Proxy-Days-Seen-30d":         "12",
+		"X-IPGeo-Proxy-Provider-Count-30d":    "2",
+	}
+	for header, value := range want {
+		if got := seen.Header.Get(header); got != value {
+			t.Errorf("%s: got %q, want %q", header, got, value)
+		}
+	}
+
+	cfg.BlockResidentialProxy = true
+	if rec, _ := serve(t, cfg, "81.2.69.142:1234", nil); rec.Code != http.StatusForbidden {
+		t.Errorf("residential proxy from the v2 database: got %d, want 403", rec.Code)
 	}
 }
 
