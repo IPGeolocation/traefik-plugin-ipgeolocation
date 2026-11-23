@@ -153,7 +153,7 @@ Download the `.mmdb` files from your [IPGeolocation.io account](https://app.ipge
 | [IP Company](https://ipgeolocation.io/ip-company-database.html) | `db-ip-company.mmdb` | company or ISP name, domain and type |
 | [IP to ASN](https://ipgeolocation.io/ip-asn-database.html) | `db-ip-asn.mmdb` | AS number, organization, type and RIR; peers and routes in IP to ASN (Extended) |
 | [IP Abuse Contact](https://ipgeolocation.io/ip-abuse-contact-database.html) | `db-ip-abuse.mmdb` | abuse email, phone, address, route, country |
-| [Residential Proxy](https://ipgeolocation.io/residential-proxy-database.html) | `db-residential-proxy.mmdb` | residential proxy provider and last seen date |
+| [Residential Proxy](https://ipgeolocation.io/residential-proxy-database.html) | `db-residential-proxy.mmdb` | residential proxy providers, last-seen date, and 7-day and 30-day proxy activity counts |
 | [IP Hosting](https://ipgeolocation.io/ip-hosting-database.html) | `db-ip-hosting.mmdb` | hosting provider name |
 
 Load only what you need. Fields from a database you did not load stay empty, so referencing them is safe. Bundles that ship two databases in one archive work the same way: list both files. Tiers are on the [pricing page](https://ipgeolocation.io/db-pricing.html), the [field schemas](https://ipgeolocation.io/documentation/databases.html) show what each database contains.
@@ -239,14 +239,14 @@ Use any of these names in the [`headers`](#enrichment) map. They match the [Ngin
 | Country metadata | `currency_code`, `currency_name`, `currency_symbol`, `calling_code`, `languages`, `tld` |
 | Company | `company_name`, `company_domain`, `company_type`, `isp_name`, `organization_name` |
 | ASN | `asn`, `asn_number`, `asn_name`, `asn_organization`, `asn_country`, `asn_domain`, `asn_type`, `asn_rir`, `asn_date_allocated`, `asn_allocation_status`, `asn_routes`, `asn_peers`, `asn_upstreams`, `asn_downstreams` |
-| Security | `threat_score`, `is_tor`, `is_proxy`, `is_vpn`, `is_relay`, `is_residential_proxy`, `is_anonymous`, `is_known_attacker`, `is_bot`, `is_spam`, `is_cloud_provider`, `cloud_provider`, `proxy_type`, `proxy_provider`, `vpn_provider`, `relay_provider`, `proxy_confidence`, `vpn_confidence`, `proxy_last_seen`, `vpn_last_seen`, `is_known_good_bot`, `bot_type`, `bot_operator`, `bot_confidence`, `bot_last_seen`, `is_corporate_gateway`, `corporate_gateway_provider`, `corporate_gateway_type` |
+| Security | `threat_score`, `is_tor`, `is_proxy`, `is_vpn`, `is_relay`, `is_residential_proxy`, `is_anonymous`, `is_known_attacker`, `is_bot`, `is_spam`, `is_cloud_provider`, `cloud_provider`, `proxy_type`, `proxy_provider`, `vpn_provider`, `relay_provider`, `proxy_confidence`, `vpn_confidence`, `proxy_last_seen`, `vpn_last_seen`, `proxy_days_seen_7d`, `proxy_days_seen_30d`, `proxy_provider_count_30d`, `is_known_good_bot`, `bot_type`, `bot_operator`, `bot_confidence`, `bot_last_seen`, `is_corporate_gateway`, `corporate_gateway_provider`, `corporate_gateway_type` |
 | Residential proxy and hosting | `residential_proxy_provider`, `residential_proxy_last_seen`, `hosting_provider` |
 | Abuse contact | `abuse_name`, `abuse_email`, `abuse_phone`, `abuse_address`, `abuse_country_code`, `abuse_kind`, `abuse_route` |
 | Special | `ip`, the client address the plugin used |
 
 Booleans render as `true` or `false` (or `1` and `0` with `booleanFormat: one_zero`), lists are joined with `listSeparator`, AS numbers are normalized to `AS1257`, and a field with no data is omitted rather than sent empty.
 
-The Residential Proxy and Hosting databases have no boolean column, since a record existing is the signal, so `is_residential_proxy` and `is_cloud_provider` become `true` when those databases contain the address. A flag from a database declared earlier still wins.
+The Residential Proxy and Hosting databases have no boolean column, since a record existing is the signal, so `is_residential_proxy` and `is_cloud_provider` become `true` when those databases contain the address. A flag from a database declared earlier still wins. Residential Proxy database v2 lists every provider in `proxy_providers`, which `residential_proxy_provider` and `proxy_provider` join with `listSeparator`; the v1 `proxy_provider` column still works. The three proxy activity counts come from the IP Security database or from Residential Proxy database v2, whichever is declared first.
 
 ## Real world examples
 

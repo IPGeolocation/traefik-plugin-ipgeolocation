@@ -102,7 +102,7 @@ var fieldDefs = []fieldDef{
 	{"is_vpn", kindBool, []string{"is_vpn", "security.is_vpn"}, nil},
 	{"is_relay", kindBool, []string{"is_relay", "security.is_relay"}, nil},
 	{"is_residential_proxy", kindBool, []string{"is_residential_proxy", "security.is_residential_proxy"},
-		[]string{"proxy_provider", "residential_proxy.provider_name", "residential_proxy_provider_name"}},
+		[]string{"proxy_providers", "proxy_provider", "residential_proxy.provider_name", "residential_proxy_provider_name"}},
 	{"is_anonymous", kindBool, []string{"is_anonymous", "security.is_anonymous"}, nil},
 	{"is_known_attacker", kindBool, []string{"is_known_attacker", "security.is_known_attacker"}, nil},
 	{"is_bot", kindBool, []string{"is_bot", "security.is_bot"}, nil},
@@ -111,13 +111,18 @@ var fieldDefs = []fieldDef{
 		[]string{"hosting_provider", "hosting.provider_name"}},
 	{"cloud_provider", kindString, []string{"cloud_provider_name", "security.cloud_provider", "cloud_provider"}, nil},
 	{"proxy_type", kindString, []string{"proxy_type", "security.proxy_type"}, nil},
-	{"proxy_provider", kindList, []string{"proxy_provider_names", "security.proxy_provider", "proxy_provider"}, nil},
+	{"proxy_provider", kindList, []string{"proxy_provider_names", "security.proxy_provider", "proxy_providers", "proxy_provider"}, nil},
 	{"vpn_provider", kindList, []string{"vpn_provider_names", "security.vpn_provider", "vpn_provider"}, nil},
 	{"relay_provider", kindString, []string{"relay_provider_name", "security.relay_provider", "relay_provider"}, nil},
 	{"proxy_confidence", kindNumber, []string{"proxy_confidence_score", "security.proxy_confidence_score"}, nil},
 	{"vpn_confidence", kindNumber, []string{"vpn_confidence_score", "security.vpn_confidence_score"}, nil},
 	{"proxy_last_seen", kindString, []string{"proxy_last_seen", "security.proxy_last_seen"}, nil},
 	{"vpn_last_seen", kindString, []string{"vpn_last_seen", "security.vpn_last_seen"}, nil},
+	// Proxy activity counts: the same keys in the IP Security database and in
+	// the Residential Proxy database v2.
+	{"proxy_days_seen_7d", kindNumber, []string{"proxy_days_seen_7d", "security.proxy_days_seen_7d"}, nil},
+	{"proxy_days_seen_30d", kindNumber, []string{"proxy_days_seen_30d", "security.proxy_days_seen_30d"}, nil},
+	{"proxy_provider_count_30d", kindNumber, []string{"proxy_provider_count_30d", "security.proxy_provider_count_30d"}, nil},
 
 	// Security v4 additions: bot detail and corporate gateways.
 	{"is_known_good_bot", kindBool, []string{"is_known_good_bot", "security.is_known_good_bot"}, nil},
@@ -135,8 +140,10 @@ var fieldDefs = []fieldDef{
 	{"corporate_gateway_provider", kindString, []string{"corporate_gateway_provider_name", "security.corporate_gateway_provider_name"}, nil},
 	{"corporate_gateway_type", kindString, []string{"corporate_gateway_type", "security.corporate_gateway_type"}, nil},
 
-	// Residential proxy and hosting databases.
-	{"residential_proxy_provider", kindString, []string{"residential_proxy.provider_name", "residential_proxy_provider_name", "proxy_provider"}, nil},
+	// Residential proxy and hosting databases. Residential Proxy database v2
+	// ships proxy_providers, an array of every provider; v1 shipped a single
+	// proxy_provider, which is still read as a fallback.
+	{"residential_proxy_provider", kindList, []string{"residential_proxy.provider_name", "residential_proxy_provider_name", "proxy_providers", "proxy_provider"}, nil},
 	{"residential_proxy_last_seen", kindString, []string{"residential_proxy.last_seen", "residential_proxy_last_seen", "last_seen"}, nil},
 	{"hosting_provider", kindString, []string{"hosting_provider", "hosting.provider_name", "hosting.provider", "hosting.name"}, nil},
 
